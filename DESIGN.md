@@ -26,9 +26,9 @@
 - Tracks used and unused page frames
 - Tracks number of page frames that may be needed but have not yet been allocated
 - Uses a hybrid bitmap and queue allocator
-        - The bitmap is used as normal to track available and unavailable frames
-        - The queue is implemented using a static array and functions as a cache of sorts containing a list of available frames for faster allocation
-                - frames in the queue are considered to already have been allocated in the bitmap
-                - When frames are returned to the allocator as many possible are pushed to the back of the queue while the rest are marked available in the bitmap
-        - Contiguous allocations are possible through the use of the bitmap though they would take longer due to the need to find n contiguous available frames.
-                -This lookup can be made faster through the use of AVX2 or AVX-512 instructions to compare large numbers of bits at a time when needed.
+	- The bitmap is used as normal to track available and unavailable frames
+	- The queue is implemented using a static array and functions as a cache of sorts containing a list of available frames for faster allocation
+		- frames in the queue are considered to already have been allocated in the bitmap
+		- When frames are returned to the allocator as many possible are pushed to the back of the queue while the rest are marked available in the bitmap
+	- Contiguous allocations are possible through the use of the bitmap though they would take longer due to the need to find n contiguous available frames.
+		-This lookup can be made faster through the use of AVX2 or AVX-512 instructions to compare large numbers of bits at a time when needed.
