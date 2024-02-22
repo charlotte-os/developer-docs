@@ -1,2 +1,2 @@
-# Developer Wiki
-A dummy repository to use for the developer wiki for CharlotteOS
+# Developer Documents
+A repository containing design documents, RFCs, and the developer wiki for CharlotteOS
