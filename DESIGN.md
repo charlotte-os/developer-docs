@@ -6,10 +6,10 @@
 	- Ease of use for nontechnical users
 	- Ease of troubleshooting for both technical and nontechnical users
 	- Ease of developing applications
-	- Provide an erognomic environment for developers
-	- Make the system itself easy to hack on
+	- Providing an erognomic environment for developers
+	- Making the system itself easy to hack on
 		- Ensure all OS code is well organized and well documented
-- MPL 2.0 License to the extent possible
+- MPL 2.0 License used when possible
 - Include features that each set of target users care about
 - Provide a modern set of user interfaces
 	- Create a good looking and well optimized native Rust UI
@@ -44,10 +44,10 @@
 - Thread Scheduling
 	- TBD
 - ACPI
-	- Static tables are prased using custom code
+	- Static tables are parsed using custom code
 	- AML interpretation will be performed using Rust bindings to LAI, the Lightweight AML Interprer
 - System Call Interface
-	- The system call interface will use a `target-action-arguments` pattern
+	- The system call interface will use a `target-action-arguments` pattern for extensibility and ease of use
 		- `target`: Either an OS subsystem or capability
 		- `action`: The requested action for the kernel to perform
 		- `arguments`: Any other information needed to perform the requested action
@@ -88,7 +88,7 @@
 
 #### Overview: The system will provide two user interfaces, a text shell and a graphical UI for users to interact with it.
 
--Text UI
+- Text UI
 	- A rich TUI that allows users to interact with the system.
 	- The programming interface for the TUI should be richer than curses or conio and potentially allow a mouse to be used
 - Graphical UI
