@@ -1,6 +1,6 @@
 # CharlotteOS Design Document
 
-## Overview
+## General
 
 - Design Goals
 	- Ease of use for nontechnical users
@@ -20,8 +20,8 @@
 
 ## Kernel - Charlotte Core
 
-- Overview: The kernel will provide mechanisms to make use of hardware resources and it will enforce the policies set by
-privileged userspace software.
+#### Overview: The kernel will provide mechanisms to make use of hardware resources and it will enforce the policies set by privileged userspace software.
+
 - Hybrid Kernel
 	- Kernel extensions run as privileged processes in userspace
 	- Drivers can be compiled into the kernel or run as kernel extensions
@@ -60,8 +60,7 @@ privileged userspace software.
 
 ## Executive Service - Charlotte Exec
 
-- Overview: The executive service is the primary userspace portion of the operating system. It controls all system configuration, handles process management, user management and implements the configured security policy. It is also
-responsible for starting and stopping all other system services including kernel extension services.
+#### Overview: The executive service is the primary userspace portion of the operating system. It controls all system configuration, handles process management, user management and implements the configured security policy. It is also responsible for starting and stopping all other system services including kernel extension services.
 - Is given all possible capabilities at system startup and has the responsibility of providing or denying processes capabilities upon request.
 - Manages all system services and kernel extension services.
 - Creates and launches all new processes by default.
@@ -75,8 +74,8 @@ responsible for starting and stopping all other system services including kernel
 
 ## Namespace
 
-- Overview: The system namespace is a heirarchical directory of entries that represent a variety of differnt things in the system. It is used to
-enumerate and interact with almost all system resources and components.
+#### Overview: The system namespace is a heirarchical directory of entries that represent a variety of differnt things in the system. It is used to enumerate and interact with almost all system resources and components.
+
 - Implemented by the namespace service which should be a direct child of the executive service
 - Paths in the namespace are URIs with the following format `sns://addr/path`
 	- `sns`: The subnamespace to be accessessed
@@ -87,7 +86,8 @@ enumerate and interact with almost all system resources and components.
 
 ## User Interface
 
-- Overview: The system will provide two user interfaces: a text shell and a graphical UI
+#### Overview: The system will provide two user interfaces, a text shell and a graphical UI for users to interact with it.
+
 -Text UI
 	- A rich TUI that allows users to interact with the system.
 	- The programming interface for the TUI should be richer than curses or conio and potentially allow a mouse to be used
