@@ -9,7 +9,7 @@
 	- Providing an erognomic environment for developers
 	- Making the system itself easy to hack on
 		- Ensure all OS code is well organized and well documented
-- MPL 2.0 License used when possible
+- GPL 3.0 License used when possible
 - Include features that each set of target users care about
 - Provide a modern set of user interfaces
 	- Create a good looking and well optimized native Rust UI
