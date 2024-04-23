@@ -22,9 +22,10 @@
 
 #### Overview: The kernel will provide mechanisms to make use of hardware resources and it will enforce the policies set by privileged userspace software.
 
-- Hybrid Kernel
-	- Kernel extensions run as privileged processes in userspace
-	- Drivers can be compiled into the kernel or run as kernel extensions
+- Modular Monolithic Kernel
+	- Drivers and other loadable kernel modules will need to use the same compiler version as the kernel they seek to target
+	- Each kernel release will make it clear what compiler version it is meant to be compiled with
+	- Charlotte Core does not guarantee any form of internal stability so the onus is on module developers to ensure that their code works with each new kernel release
 - Memory Management
 	- MMU required
 	- Physical Memory Manager
@@ -42,28 +43,31 @@
 		- Given the number of ISA specific operations involved this subsystem is best implemented in arch on a per ISA basis
 		and abstracted to a common interface.
 - Thread Scheduling
-	- TBD
+	- Single scheduler with the ability to be tuned for latency or throughput
+	- The primary scheduling algorithm with be a preemptive form of Dynamic Quantum Round Robin
 - ACPI
 	- Static tables are parsed using custom code
-	- AML interpretation will be performed using Rust bindings to LAI, the Lightweight AML Interprer
+	- AML interpretation will be performed using Rust bindings to uACPI
 - System Call Interface
 	- The system call interface will use a `target-action-arguments` pattern for extensibility and ease of use
 		- `target`: Either an OS subsystem or capability
 		- `action`: The requested action for the kernel to perform
 		- `arguments`: Any other information needed to perform the requested action
 - Kernel Bus (kbus)
-	- Intercontext communication mechanism backed by kernel shared memory
+	- Interprocess communication mechanism
 	- Provides full duplex communication channels
 	- Capabale of unicast and multicast communication
 	- Broadcast is not allowed for performance and security reasons
 	- Provides the only way to send capabilities between contexts
+	- Works locally and between multiple hosts
+		- Local communication will use mesage passing via shared memory
+		- Remote communication will use QUIC
 
 ## Executive Service - Charlotte Exec
 
 #### Overview: The executive service is the primary userspace portion of the operating system. It controls all system configuration, handles process management, user management and implements the configured security policy. It is also responsible for starting and stopping all other system services including kernel extension services.
-- Is given all possible capabilities at system startup and has the responsibility of providing or denying processes capabilities upon request.
-- Manages all system services and kernel extension services.
-- Creates and launches all new processes by default.
+- Has the ability to grant or revoke any capability
+- Manages all system services
 - Can operate as an OOM killer if configured to do so.
 - Makes all necessary privileged system calls to configure the kernel to enforce system policies
 - Reads the configuration changes automatically from the namespace and implements the requested changes
@@ -78,19 +82,18 @@
 #### Overview: The system namespace is a heirarchical directory of entries that represent a variety of differnt things in the system. It is used to enumerate and interact with almost all system resources and components.
 
 - Implemented by the namespace service which should be a direct child of the executive service
-- Paths in the namespace are URIs with the following format `sns://addr/path`
-	- `sns`: The subnamespace to be accessessed
-	- `addr`: Some means of identifying the host on which to look for the given path in the given subnamespace. If omitted, localhost is assumed.
+- Paths in the namespace are URIs with the following format `protocol://host/path`
+	- `protocol`: The communication protocol used to access the path. Pretty much always kbus.
+	- `host`: Some means of identifying the host on which to look for the given path in the given subnamespace. If omitted, localhost is assumed.
 	- `path`: The path to the object or directory being referred to.
 - The filesystem will be a subnamespace that is implemented by the OS itself via a filesystem service.
-- Processes with the appropriate permissions can create and mount their own subnamespaces into the system namespace although certain SNS names will be reserved for use exclusively by privileged OS services.
+- The namespace will be implemented directly in the kernel
 
 ## User Interface
 
-#### Overview: The system will provide two user interfaces, a text shell and a graphical UI for users to interact with.
+#### Overview: Users will interact with the system through a graphical shell
 
-- Text UI
-	- A rich TUI that allows users to interact with the system.
-	- The programming interface for the TUI should be richer than curses or conio and potentially allow a mouse to be used
-- Graphical UI
-	- A widget based UI modelled after the KDE Plasma Desktop but made more multitouch friendly
+- CharlotteOS will be a GUI first operating system
+	- A widget based UI modelled after the KDE Plasma Desktop
+	- Robust support for remote desktop capabilities
+	- Terminals will be implemented within the GUI framework
