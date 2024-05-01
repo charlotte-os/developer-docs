@@ -12,7 +12,7 @@
 - GPL 3.0 License used when possible
 - Include features that each set of target users care about
 - Provide a modern set of user interfaces
-	- Create a good looking and well optimized native Rust UI
+	- Create a good looking and well optimized native UI
 		- Widget based GUI inspired by KDE Plasma
 	- Create a modern and easy to use text shell
 		- More feature rich API than curses and conio
