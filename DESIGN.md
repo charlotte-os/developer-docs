@@ -18,14 +18,12 @@
 		- More feature rich API than curses and conio
 		- Potentially allow mouse usage
 
-## Kernel - Charlotte Core
+## Kernel - Catalyst
 
 #### Overview: The kernel will provide mechanisms to make use of hardware resources and it will enforce the policies set by privileged userspace software.
 
 - Modular Monolithic Kernel
-	- Drivers and other loadable kernel modules will need to use the same compiler version as the kernel they seek to target
-	- Each kernel release will make it clear what compiler version it is meant to be compiled with
-	- Charlotte Core does not guarantee any form of internal stability so the onus is on module developers to ensure that their code works with each new kernel release
+	- Loadable kernel modules using the C ABI
 - Memory Management
 	- MMU required
 	- Physical Memory Manager
@@ -39,15 +37,14 @@
 			- Add mappings to an existing page map
 			- Remove mappings from an existing page map
 			- Set or clear pages' present bits
-			- Change MMU permissions on one or more page(s) in a given page map
+			- Change flags
 		- Given the number of ISA specific operations involved this subsystem is best implemented in arch on a per ISA basis
 		and abstracted to a common interface.
 - Thread Scheduling
 	- Single scheduler with the ability to be tuned for latency or throughput
 	- The primary scheduling algorithm with be a preemptive form of Dynamic Quantum Round Robin
 - ACPI
-	- Static tables are parsed using custom code
-	- AML interpretation will be performed using Rust bindings to uACPI
+	-uACPI will be used to implement support for ACPI
 - System Call Interface
 	- The system call interface will use a `target-action-arguments` pattern for extensibility and ease of use
 		- `target`: Either an OS subsystem or capability
@@ -63,7 +60,7 @@
 		- Local communication will use mesage passing via shared memory
 		- Remote communication will use QUIC
 
-## Executive Service - Charlotte Exec
+## Executive Service
 
 #### Overview: The executive service is the primary userspace portion of the operating system. It controls all system configuration, handles process management, user management and implements the configured security policy. It is also responsible for starting and stopping all other system services including kernel extension services.
 - Has the ability to grant or revoke any capability
@@ -82,11 +79,11 @@
 #### Overview: The system namespace is a heirarchical directory of entries that represent a variety of differnt things in the system. It is used to enumerate and interact with almost all system resources and components.
 
 - Implemented by the namespace service which should be a direct child of the executive service
-- Paths in the namespace are URIs with the following format `protocol://host/path`
-	- `protocol`: The communication protocol used to access the path. Pretty much always kbus.
+- Paths in the namespace are URIs with the following format `sns://host/path`
+	- `sns`: The subnamespace
 	- `host`: Some means of identifying the host on which to look for the given path in the given subnamespace. If omitted, localhost is assumed.
 	- `path`: The path to the object or directory being referred to.
-- The filesystem will be a subnamespace that is implemented by the OS itself via a filesystem service.
+- The filesystem will be a subnamespace
 - The namespace will be implemented directly in the kernel
 
 ## User Interface
@@ -96,4 +93,5 @@
 - CharlotteOS will be a GUI first operating system
 	- A widget based UI modelled after the KDE Plasma Desktop
 	- Robust support for remote desktop capabilities
-	- Terminals will be implemented within the GUI framework
+- Terminal mode we be supported for environment where a GUI isn't appropriate
+	- Implemented using flanterm
