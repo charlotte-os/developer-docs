@@ -2,96 +2,91 @@
 
 ## General
 
-- Design Goals
-	- Ease of use for nontechnical users
-	- Ease of troubleshooting for both technical and nontechnical users
-	- Ease of developing applications
-	- Providing an erognomic environment for developers
-	- Making the system itself easy to hack on
-		- Ensure all OS code is well organized and well documented
-- GPL 3.0 License used when possible
-- Include features that each set of target users care about
-- Provide a modern set of user interfaces
-	- Create a good looking and well optimized native UI
-		- Widget based GUI inspired by KDE Plasma
-	- Create a modern and easy to use text shell
-		- More feature rich API than curses and conio
-		- Potentially allow mouse usage
+### Design Goals
+- Ensure ease of use for non-technical users.
+- Facilitate easy troubleshooting for both technical and non-technical users.
+- Simplify the development of applications.
+- Provide an ergonomic environment for developers.
+- Make the system accessible and straightforward to modify (hackability).
+  - Ensure all OS code is well-organized and well-documented.
+- Use the GPL 3.0 License wherever possible.
+- Include features valued by different target user groups.
+- Deliver a modern set of user interfaces.
+  - Develop a visually appealing and well-optimized native Rust UI.
+    - Widget-based GUI inspired by KDE Plasma.
 
-## Kernel - Catalyst
+## Kernel - Charlotte Core
 
-#### Overview: The kernel will provide mechanisms to make use of hardware resources and it will enforce the policies set by privileged userspace software.
+### Overview
+The kernel facilitates access to hardware resources and enforces policies set by privileged user-space software.
 
-- Modular Monolithic Kernel
-	- Loadable kernel modules using the C ABI
-- Memory Management
-	- MMU required
-	- Physical Memory Manager
-		- Tracks used and unused page frames
-		- Tracks number of page frames that may be needed but have not yet been allocated
-	- Virtual Menmory Manager
-		- An interface provided by the arch module in the kernel to abstract over ISA specific page map management operations
-		- Operations
-			- Create a new page map
-			- Delete an existing page map
-			- Add mappings to an existing page map
-			- Remove mappings from an existing page map
-			- Set or clear pages' present bits
-			- Change flags
-		- Given the number of ISA specific operations involved this subsystem is best implemented in arch on a per ISA basis
-		and abstracted to a common interface.
-- Thread Scheduling
-	- Single scheduler with the ability to be tuned for latency or throughput
-	- The primary scheduling algorithm with be a preemptive form of Dynamic Quantum Round Robin
-- ACPI
-	-uACPI will be used to implement support for ACPI
-- System Call Interface
-	- The system call interface will use a `target-action-arguments` pattern for extensibility and ease of use
-		- `target`: Either an OS subsystem or capability
-		- `action`: The requested action for the kernel to perform
-		- `arguments`: Any other information needed to perform the requested action
-- Kernel Bus (kbus)
-	- Interprocess communication mechanism
-	- Provides full duplex communication channels
-	- Capabale of unicast and multicast communication
-	- Broadcast is not allowed for performance and security reasons
-	- Provides the only way to send capabilities between contexts
-	- Works locally and between multiple hosts
-		- Local communication will use mesage passing via shared memory
-		- Remote communication will use QUIC
+#### Modular Monolithic Kernel
+- Drivers and kernel modules must use the same compiler version as the kernel they target.
+- Each kernel release will explicitly specify the compiler version used for its build, ensuring that all modules are compatible.
+- Charlotte Core does not guarantee internal stability; module developers are responsible for ensuring compatibility with new kernel releases.
+- If module authors wish to use languages other than Rust, they must provide their own C FFI wrapper module to serve as an interface. This wrapper ensures that the module can communicate with the kernel while using the language of the author’s choice.
+- The package manager will facilitate easier integration and management of modules, streamlining updates and compatibility checks.
 
-## Executive Service
+#### Memory Management
+- Requires MMU.
+- **Physical Memory Manager**
+  - Tracks used and unused page frames.
+  - Manages reservation of page frames that may be needed in the future.
+- **Virtual Memory Manager**
+  - Provided by the arch module to abstract ISA-specific page map management operations.
+  - Operations include creating and deleting page maps, adding/removing mappings, and managing MMU permissions on pages.
 
-#### Overview: The executive service is the primary userspace portion of the operating system. It controls all system configuration, handles process management, user management and implements the configured security policy. It is also responsible for starting and stopping all other system services including kernel extension services.
-- Has the ability to grant or revoke any capability
-- Manages all system services
-- Can operate as an OOM killer if configured to do so.
-- Makes all necessary privileged system calls to configure the kernel to enforce system policies
-- Reads the configuration changes automatically from the namespace and implements the requested changes
-- Tracks processes and their resources (the kernel has no concept of process at all)
-- Handles all user management
-- Enforces security policy by withholding capabilities when appropriate.
-- Assigns ownership of global resources to the services configured to manage them.
-    - For example the framebuffer would be assigned to the program configured to be the compositor.
+#### Thread Scheduling
+- Single scheduler tunable for either latency or throughput.
+- Uses a preemptive form of Dynamic Quantum Round Robin as the primary scheduling algorithm.
+
+#### ACPI
+- Parses static tables using custom code.
+- Integrates Rust bindings to uACPI for AML interpretation.
+
+#### System Call Interface
+- Employs a target-action-arguments pattern for extensibility and ease of use.
+  - Target: An OS subsystem or capability.
+  - Action: The requested action for the kernel to perform.
+  - Arguments: Additional information needed to execute the action.
+
+#### Kernel Bus (kbus)
+- Handles interprocess communication.
+- Provides full duplex communication channels capable of unicast and multicast (broadcasting is prohibited).
+- Facilitates capability transfer between contexts and supports both local (via shared memory) and remote (using QUIC) communications.
+
+## Executive Service - Charlotte Exec
+
+### Overview
+The primary user-space portion of the OS, handling system configuration, process and user management, and security policy enforcement.
+
+- Grants or revokes any capability.
+- Manages all system services and acts as an OOM killer when configured.
+- Automatically reads and implements configuration changes.
+- Tracks processes and their resources (the kernel itself does not handle process management).
+- Enforces security policy by managing capability access.
+- Assigns ownership of global resources to designated service managers (e.g., framebuffer to the compositor).
 
 ## Namespace
 
-#### Overview: The system namespace is a heirarchical directory of entries that represent a variety of differnt things in the system. It is used to enumerate and interact with almost all system resources and components.
+### Overview
+A hierarchical directory used to enumerate and interact with nearly all system resources and components.
 
-- Implemented by the namespace service which should be a direct child of the executive service
-- Paths in the namespace are URIs with the following format `sns://host/path`
-	- `sns`: The subnamespace
-	- `host`: Some means of identifying the host on which to look for the given path in the given subnamespace. If omitted, localhost is assumed.
-	- `path`: The path to the object or directory being referred to.
-- The filesystem will be a subnamespace
-- The namespace will be implemented directly in the kernel
+- Managed by the namespace service, a direct child of the executive service.
+- Paths in the namespace are formatted as `sns://host/path`.
+  - **sns**: Subnamspace, a section within the namespace that serves a particular pu
+  - **Host**: Identifier for the host; defaults to localhost if omitted.
+  - **Path**: The specific object or directory referenced.
+- The filesystem is a subnamespace
 
 ## User Interface
 
-#### Overview: Users will interact with the system through a graphical shell
+### Overview
+The primary user interaction with the system is through a graphical shell.
 
-- CharlotteOS will be a GUI first operating system
-	- A widget based UI modelled after the KDE Plasma Desktop
-	- Robust support for remote desktop capabilities
-- Terminal mode we be supported for environment where a GUI isn't appropriate
-	- Implemented using flanterm
+- CharlotteOS is GUI-first.
+  - Utilizes a widget-based UI modeled after the KDE Plasma Desktop.
+  - Includes robust support for remote desktop functionality.
+  - Implements terminals within the GUI framework including fullscreen ones for environments where a traditional GUI is not desirable.
+  - Provides an easy to use but also scriptable command shell
+    - shell scripts simply list commands along with some basic control flow commands and labels in a text file making them easy to use.
