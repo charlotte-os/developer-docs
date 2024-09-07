@@ -30,6 +30,10 @@ Examples:
 - `Add framebuffer`
 - `Enhance memory allocator`
 
+### Merging
+
+We use GitHub's rebase. Please ensure that each branch is only merged once this way. After merge, the branch should be deleted. This way we can keep our linear history clean. If you have trouble with rebasing, please let us know.
+
 ## Special files
 
 - Every single repository should have a `README.md` in its root.
