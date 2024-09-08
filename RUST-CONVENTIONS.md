@@ -12,6 +12,10 @@ While not specifically connected to Rust, our go-to build tool is currently the 
 
 ## Coding
 
+### C ABI
+
+Please make all public functions and types `extern "C"` and `#[repr(C)]` respectively. You can also alternatively provide a C ABI equivalent to the public native Rust function alongside it to fulfill the FFI compatibility requirements we have for this new kernel. 
+
 ### Comments
 
 ## Assembly
